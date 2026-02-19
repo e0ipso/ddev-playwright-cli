@@ -5,3 +5,4 @@ project_files:
   - web-build/Dockerfile.playwright-cli
 
 ddev_version_constraint: '>= v1.24.3'
+
