@@ -1,6 +1,6 @@
 # Details about the install.yaml file are at https://ddev.readthedocs.io/en/stable/users/extend/additional-services/#sections-and-features-of-ddev-get-add-on-installyaml
 
-name: addon-template
+name: playwright-cli
 
 # pre_install_actions - list of actions to run before installing the addon.
 # Examples would be removing an extraneous docker volume,
@@ -60,14 +60,8 @@ pre_install_actions:
 # If you use directories, they must be directories that are managed
 # by this add-on, or removal could remove things that are not owned by it
 project_files:
-  - docker-compose.addon-template.yaml
-  # - commands/web/add-on-command
-  # - commands/host/add-on-command-host
-  # - web-build/Dockerfile.addon-template
-  # - some-directory/file1.txt
-  # - some-directory/file2.txt
-  # - extra_files_dir_created_by_this_template/
-  # - somefile.sh
+  - web-build/Dockerfile.playwright-cli
+  - config.playwright-cli.yaml
 
 # List of files and directories that are copied into the global .ddev directory
 # DDEV environment variables can be interpolated into these filenames
@@ -91,23 +85,13 @@ dependencies:
 # DDEV environment variables can be interpolated into these actions.
 # post_install_actions are executed in the context of the target project's .ddev directory.
 post_install_actions:
-  # - chmod +x ~/.ddev/commands/web/somecommand
-  # - touch ${DDEV_APPROOT}/somefile.${GOOS}.${DDEV_WEBSERVER}
-  # - perl -pi -e 's/oldstring/newstring/g' ${DDEV_APPROOT}/.ddev/docker-compose.addon-template.yaml
+  - echo "playwright-cli add-on installed. Run 'ddev restart' to rebuild the web container and install @playwright/cli."
 
 # Shell actions that can be done during removal of the add-on.
 # Files listed in project_files section will be automatically removed here if they contain #ddev-generated line.
 # removal_actions are executed in the context of the target project's .ddev directory.
 removal_actions:
-  # - rm ~/.ddev/commands/web/somecommand
-  # - |
-  #   if [ -f ${DDEV_APPROOT}/.ddev/docker-compose.addon-template_extras.yaml ]; then
-  #     if grep -q '#ddev-generated' ${DDEV_APPROOT}/.ddev/docker-compose.addon-template_extras.yaml; then
-  #       rm -f ${DDEV_APPROOT}/.ddev/docker-compose.addon-template_extras.yaml
-  #     else
-  #       echo "Unwilling to remove '${DDEV_APPROOT}/.ddev/docker-compose.addon-template_extras.yaml' because it does not have #ddev-generated in it; you can manually delete it if it is safe to delete."
-  #     fi
-  #   fi
+  - echo "playwright-cli add-on removed. Run 'ddev restart' to rebuild the web container without @playwright/cli."
 
 # Advanced usage - YAML files can be read in and then used as go template actions
 # in pre_install_actions and post_install_actions

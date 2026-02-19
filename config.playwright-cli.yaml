@@ -1,0 +1,13 @@
+#ddev-generated
+hooks:
+  post-start:
+    - exec: |
+        #ddev-description: Install @playwright/cli globally if not already present
+        if ! command -v playwright-cli >/dev/null 2>&1; then
+          npm install -g @playwright/cli@latest
+        fi
+    - exec: |
+        #ddev-description: Install playwright-cli Claude skills if not already present
+        if [ ! -d .claude/skills/playwright-cli ] && [ ! -d ~/.claude/skills/playwright-cli ]; then
+          playwright-cli install --skills
+        fi

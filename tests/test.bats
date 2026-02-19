@@ -16,7 +16,7 @@ setup() {
   set -eu -o pipefail
 
   # Override this variable for your add-on:
-  export GITHUB_REPO=ddev/ddev-addon-template
+  export GITHUB_REPO=ddev/ddev-playwright-cli
 
   TEST_BREW_PREFIX="$(brew --prefix 2>/dev/null || true)"
   export BATS_LIB_PATH="${BATS_LIB_PATH}:${TEST_BREW_PREFIX}/lib:/usr/lib/bats"
@@ -39,17 +39,17 @@ setup() {
 }
 
 health_checks() {
-  # Do something useful here that verifies the add-on
-
-  # You can check for specific information in headers:
-  # run curl -sfI https://${PROJNAME}.ddev.site
-  # assert_output --partial "HTTP/2 200"
-  # assert_output --partial "test_header"
-
-  # Or check if some command gives expected output:
-  DDEV_DEBUG=true run ddev launch
+  # Verify playwright-cli binary is in PATH
+  run ddev exec "command -v playwright-cli"
   assert_success
-  assert_output --partial "FULLURL https://${PROJNAME}.ddev.site"
+
+  # Verify playwright-cli runs and reports a version
+  run ddev exec "playwright-cli --version"
+  assert_success
+
+  # Verify Claude skills were installed by the post-start hook
+  run ddev exec "test -d .claude/skills/playwright-cli || test -d ~/.claude/skills/playwright-cli"
+  assert_success
 }
 
 teardown() {
