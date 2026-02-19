@@ -1,7 +1,7 @@
 [![add-on registry](https://img.shields.io/badge/DDEV-Add--on_Registry-blue)](https://addons.ddev.com)
-[![tests](https://github.com/ddev/ddev-playwright-cli/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/ddev/ddev-playwright-cli/actions/workflows/tests.yml?query=branch%3Amain)
-[![last commit](https://img.shields.io/github/last-commit/ddev/ddev-playwright-cli)](https://github.com/ddev/ddev-playwright-cli/commits)
-[![release](https://img.shields.io/github/v/release/ddev/ddev-playwright-cli)](https://github.com/ddev/ddev-playwright-cli/releases/latest)
+[![tests](https://github.com/e0ipso/ddev-playwright-cli/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/e0ipso/ddev-playwright-cli/actions/workflows/tests.yml?query=branch%3Amain)
+[![last commit](https://img.shields.io/github/last-commit/e0ipso/ddev-playwright-cli)](https://github.com/e0ipso/ddev-playwright-cli/commits)
+[![release](https://img.shields.io/github/v/release/e0ipso/ddev-playwright-cli)](https://github.com/e0ipso/ddev-playwright-cli/releases/latest)
 
 ## Overview
 
