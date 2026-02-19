@@ -23,10 +23,10 @@ After installation, commit the `.ddev` directory to version control.
 
 ## Usage
 
-| Command | Description |
-| ------- | ----------- |
-| `ddev exec playwright-cli --version` | Check the installed version |
-| `ddev exec playwright-cli --help` | View available commands |
+| Command                                     | Description                              |
+|---------------------------------------------|------------------------------------------|
+| `ddev exec playwright-cli --version`        | Check the installed version              |
+| `ddev exec playwright-cli --help`           | View available commands                  |
 | `ddev exec playwright-cli install --skills` | Manually (re-)install Claude Code skills |
 
 ## Credits
