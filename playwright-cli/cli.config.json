@@ -10,10 +10,10 @@
         "--disable-dev-shm-usage",
         "--disable-gpu"
       ]
+    },
+    "contextOptions": {
+      "ignoreHTTPSErrors": true
     }
-  },
-  "contextOptions": {
-    "ignoreHTTPSErrors": true
   }
 }
 
