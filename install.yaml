@@ -3,6 +3,7 @@ name: playwright-cli
 project_files:
   - config.playwright-cli.yaml
   - web-build/Dockerfile.playwright-cli
+  - playwright-cli/cli.config.json
 
 ddev_version_constraint: '>= v1.24.3'
 
