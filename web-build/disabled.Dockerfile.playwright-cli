@@ -14,28 +14,33 @@ RUN apt-get update
 # project uses.
 #
 # 1. $username doesn't work in --mount... lines as it's a shell variable set by
-#    ddev. Instead, we mount the .cache cache into /dot-cache, and symlink it
-#    in.
-# 2. Then we remove the symlink, and copy the cache directory into ~/.cache so
+#    ddev. Instead, we mount the .cache cache into /ms-playwright-cache, and
+#    symlink it in.
+# 2. We merge any existing ~/.cache content into /ms-playwright-cache first
+#    (cp -an preserves existing files, so cached browsers are not overwritten).
+#    The trailing ; (not &&) ensures rm -rf runs even if ~/.cache is empty.
+# 3. Then we remove the symlink, and copy the cache directory into ~/.cache so
 #    it is persisted in the image.
-# 3. We rm -rf ~/.cache before symlinking because ddev-playwright's Dockerfile
-#    may have already created it as a real directory. The /dot-cache mount
-#    retains its browsers regardless, so the final cp -a recovers everything.
+# 4. We rm -rf ~/.cache before symlinking because ddev-playwright's Dockerfile
+#    may have already created it as a real directory. The /ms-playwright-cache
+#    mount retains its browsers regardless, so the final cp -a recovers
+#    everything.
 #
 # See https://github.com/ddev/ddev/issues/4727.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  --mount=type=cache,target=/dot-cache,sharing=locked \
-  chown -R $username:$username /dot-cache \
-  && rm -rf /home/$username/.cache \
-  && sudo -u $username ln -s /dot-cache /home/$username/.cache \
+  --mount=type=cache,target=/ms-playwright-cache,sharing=locked \
+  chown -R $username:$username /ms-playwright-cache \
+  && cp -an /home/$username/.cache/* /ms-playwright-cache/ 2>/dev/null; \
+  rm -rf /home/$username/.cache \
+  && sudo -u $username ln -s /ms-playwright-cache /home/$username/.cache \
   && sudo -u $username npm install -g @playwright/cli@latest \
   && PW_BIN="$(sudo -u $username npm root -g)/@playwright/cli/node_modules/.bin/playwright" \
   && sudo -u $username "$PW_BIN" install-deps chromium \
   && sudo -u $username "$PW_BIN" install chromium \
   && rm /home/$username/.cache \
   && sudo -u $username mkdir -p /home/$username/.cache \
-  && sudo -u $username cp -a /dot-cache/* /home/$username/.cache/
+  && sudo -u $username cp -a /ms-playwright-cache/* /home/$username/.cache/
 
 # Add N_PREFIX/bin to PATH for ddev exec.
 # ddev exec uses non-login bash (BASH_ENV=/etc/bash.nointeractive.bashrc),
