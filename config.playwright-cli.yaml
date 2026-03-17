@@ -1,8 +1,12 @@
 #ddev-generated
 hooks:
+  pre-start:
+    # If Playwright CLI is enabled, make sure we get any changes.
+    - exec-host: |
+        ([[ -f .ddev/web-build/Dockerfile.playwright-cli ]] && \
+          cp .ddev/web-build/disabled.Dockerfile.playwright-cli .ddev/web-build/Dockerfile.playwright-cli) || true
   post-start:
-    - exec: |
-        #ddev-description: Install playwright-cli Claude skills
-        playwright-cli install --skills
+    # Install Claude Code skills for Playwright CLI if available.
+    - exec: "which playwright-cli > /dev/null 2>&1 && playwright-cli install --skills || true"
 web_environment:
   - PLAYWRIGHT_MCP_CONFIG=/var/www/html/.ddev/playwright-cli/cli.config.json

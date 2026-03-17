@@ -21,8 +21,12 @@ What this add-on does:
 
 ```bash
 ddev add-on get e0ipso/ddev-playwright-cli
-ddev restart
+ddev install-playwright-cli
 ```
+
+The `ddev install-playwright-cli` command copies the Dockerfile into your build
+directory and restarts the web container. This opt-in step keeps the add-on
+lightweight for projects that install it but aren't ready to use it yet.
 
 After installation, commit the `.ddev` directory to version control.
 

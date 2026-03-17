@@ -68,8 +68,20 @@ teardown() {
   echo "# ddev add-on get ${DIR} with project ${PROJNAME} in $(pwd)" >&3
   run ddev add-on get "${DIR}"
   assert_success
-  run ddev restart -y
+
+  # Verify disabled Dockerfile and install command are present.
+  assert_file_exists .ddev/web-build/disabled.Dockerfile.playwright-cli
+  assert_file_exists .ddev/commands/host/install-playwright-cli
+  # Dockerfile should not be active yet.
+  assert_file_not_exists .ddev/web-build/Dockerfile.playwright-cli
+
+  # Opt in to the CLI.
+  run ddev install-playwright-cli
   assert_success
+
+  # Verify the Dockerfile was activated.
+  assert_file_exists .ddev/web-build/Dockerfile.playwright-cli
+
   health_checks
 }
 
@@ -79,7 +91,7 @@ teardown() {
   echo "# ddev add-on get ${GITHUB_REPO} with project ${PROJNAME} in $(pwd)" >&3
   run ddev add-on get "${GITHUB_REPO}"
   assert_success
-  run ddev restart -y
+  run ddev install-playwright-cli
   assert_success
   health_checks
 }
