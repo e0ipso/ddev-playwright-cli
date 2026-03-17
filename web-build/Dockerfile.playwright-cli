@@ -1,7 +1,44 @@
 #ddev-generated
+# Debian images by default disable apt caching, so turn it on until we finish
+# the build.
+RUN mv /etc/apt/apt.conf.d/docker-clean /etc/apt/docker-clean-disabled
+
+RUN apt-get update
+
+# Install @playwright/cli globally as the ddev user, then install its Chromium
+# browser. We split install-deps (needs root for apt-get internally) from the
+# browser download (writes to ~/.cache/ms-playwright/).
+#
+# @playwright/cli pins its own playwright-core version, so its browser
+# requirements are independent of whatever @playwright/test version the
+# project uses.
+#
+# 1. $username doesn't work in --mount... lines as it's a shell variable set by
+#    ddev. Instead, we mount the .cache cache into /dot-cache, and symlink it
+#    in.
+# 2. Then we remove the symlink, and copy the cache directory into ~/.cache so
+#    it is persisted in the image.
+#
+# See https://github.com/ddev/ddev/issues/4727.
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  --mount=type=cache,target=/dot-cache,sharing=locked \
+  chown -R $username:$username /dot-cache \
+  && sudo -u $username ln -s /dot-cache /home/$username/.cache \
+  && sudo -u $username npm install -g @playwright/cli@latest \
+  && PW_BIN="$(sudo -u $username npm root -g)/@playwright/cli/node_modules/.bin/playwright" \
+  && sudo -u $username "$PW_BIN" install-deps chromium \
+  && sudo -u $username "$PW_BIN" install chromium \
+  && rm /home/$username/.cache \
+  && sudo -u $username mkdir -p /home/$username/.cache \
+  && sudo -u $username cp -a /dot-cache/* /home/$username/.cache/
+
 # Add N_PREFIX/bin to PATH for ddev exec.
 # ddev exec uses non-login bash (BASH_ENV=/etc/bash.nointeractive.bashrc),
 # which sources /etc/bashrc/*.bashrc — not /etc/profile.d/.
 RUN mkdir -p /etc/bashrc && \
     printf '[ -n "${N_PREFIX}" ] && export PATH="${N_PREFIX}/bin:${PATH}"\n' \
     > /etc/bashrc/playwright-cli.bashrc
+
+# We're done with apt so disable caching again for the final image.
+RUN mv /etc/apt/docker-clean-disabled /etc/apt/apt.conf.d/docker-clean

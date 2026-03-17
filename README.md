@@ -5,11 +5,16 @@
 
 ## Overview
 
-This add-on installs [`@playwright/cli`](https://www.npmjs.com/package/@playwright/cli) globally in the DDEV web container and automatically installs Claude Code skills on container start.
+This add-on installs [`@playwright/cli`](https://www.npmjs.com/package/@playwright/cli) globally in the DDEV web container along with its bundled Chromium browser, and automatically installs Claude Code skills on container start.
+
+[Playwright CLI](https://github.com/microsoft/playwright-cli) is a
+token-efficient command-line tool designed for AI coding agents such as Claude
+Code, GitHub Copilot, and Cursor. It lets agents interact with Playwright
+browsers through simple shell commands instead of writing full test scripts.
 
 What this add-on does:
 
-- Installs `@playwright/cli` globally in the web container via `web-build/Dockerfile.playwright-cli`
+- Installs `@playwright/cli` and Chromium at Docker build time via `web-build/Dockerfile.playwright-cli` with Docker build cache for fast rebuilds
 - Runs `playwright-cli install --skills` automatically via a post-start hook to install Claude Code skills
 
 ## Installation
@@ -22,6 +27,20 @@ ddev restart
 After installation, commit the `.ddev` directory to version control.
 
 ## Usage
+
+All Playwright CLI commands are available through `ddev exec playwright-cli`:
+
+```console
+# Open a URL in the browser.
+ddev exec playwright-cli open https://example.ddev.site
+
+# Take a snapshot of the current page (returns an accessibility tree).
+ddev exec playwright-cli snapshot
+
+# Click an element, fill a field, etc.
+ddev exec playwright-cli click --selector "text=Log in"
+ddev exec playwright-cli fill --selector "#edit-name" --value admin
+```
 
 | Command                                     | Description                              |
 |---------------------------------------------|------------------------------------------|

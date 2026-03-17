@@ -2,14 +2,5 @@
 hooks:
   post-start:
     - exec: |
-        #ddev-description: Install or update @playwright/cli globally
-        npm install -g @playwright/cli@latest
-    - exec: |
-        #ddev-description: Install Chromium browser and make it available to Playwright CLI
-        npx playwright install --with-deps chromium
-        playwright-cli install chromium
-    - exec: |
         #ddev-description: Install playwright-cli Claude skills
         playwright-cli install --skills
-web_environment:
-  - PLAYWRIGHT_MCP_CONFIG=/var/www/html/.ddev/playwright-cli/cli.config.json
