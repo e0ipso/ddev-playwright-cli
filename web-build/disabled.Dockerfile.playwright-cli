@@ -18,12 +18,16 @@ RUN apt-get update
 #    in.
 # 2. Then we remove the symlink, and copy the cache directory into ~/.cache so
 #    it is persisted in the image.
+# 3. We rm -rf ~/.cache before symlinking because ddev-playwright's Dockerfile
+#    may have already created it as a real directory. The /dot-cache mount
+#    retains its browsers regardless, so the final cp -a recovers everything.
 #
 # See https://github.com/ddev/ddev/issues/4727.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
   --mount=type=cache,target=/dot-cache,sharing=locked \
   chown -R $username:$username /dot-cache \
+  && rm -rf /home/$username/.cache \
   && sudo -u $username ln -s /dot-cache /home/$username/.cache \
   && sudo -u $username npm install -g @playwright/cli@latest \
   && PW_BIN="$(sudo -u $username npm root -g)/@playwright/cli/node_modules/.bin/playwright" \
