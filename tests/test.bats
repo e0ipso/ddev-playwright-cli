@@ -85,6 +85,52 @@ teardown() {
   health_checks
 }
 
+@test "co-install with ddev-playwright preserves both browsers" {
+  set -eu -o pipefail
+  echo "# Testing co-installation with ddev-playwright in $(pwd)" >&3
+
+  # Install ddev-playwright first (it sorts before ddev-playwright-cli).
+  run ddev add-on get Lullabot/ddev-playwright
+  assert_success
+
+  # ddev-playwright requires a test/playwright project with @playwright/test.
+  mkdir -p test/playwright
+  cat > test/playwright/package.json <<'PKGJSON'
+{
+  "name": "playwright-test",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "latest"
+  }
+}
+PKGJSON
+  run ddev exec -d /var/www/html/test/playwright npm install
+  assert_success
+
+  # Enable ddev-playwright.
+  run ddev install-playwright
+  assert_success
+
+  # Now install and enable ddev-playwright-cli.
+  run ddev add-on get "${DIR}"
+  assert_success
+  run ddev install-playwright-cli
+  assert_success
+
+  # Both addons' browsers should be present.
+  run ddev exec "ls ~/.cache/ms-playwright/"
+  assert_success
+  assert_output --partial "chromium"
+
+  # ddev-playwright-cli should work.
+  run ddev exec "playwright-cli --version"
+  assert_success
+
+  # ddev-playwright's project-level playwright should work.
+  run ddev exec -d /var/www/html/test/playwright "npx playwright --version"
+  assert_success
+}
+
 # bats test_tags=release
 @test "install from release" {
   set -eu -o pipefail
