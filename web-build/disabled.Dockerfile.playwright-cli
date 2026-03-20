@@ -19,9 +19,15 @@ RUN apt-get update
 # 2. We merge any existing ~/.cache content into /ms-playwright-cache first
 #    (cp -an preserves existing files, so cached browsers are not overwritten).
 #    The trailing ; (not &&) ensures rm -rf runs even if ~/.cache is empty.
-# 3. Then we remove the symlink, and copy the cache directory into ~/.cache so
+# 3. PLAYWRIGHT_SKIP_BROWSER_GC=1 prevents `playwright install` from removing
+#    browsers installed by a different playwright-core version (e.g. the
+#    project-level @playwright/test from ddev-playwright). Without this,
+#    playwright's built-in GC deletes any browsers not referenced by the
+#    current package.
+#    See https://github.com/microsoft/playwright/blob/7f55e117ce4d/packages/playwright-core/src/server/registry/index.ts#L1080-L1081
+# 4. Then we remove the symlink, and copy the cache directory into ~/.cache so
 #    it is persisted in the image.
-# 4. We rm -rf ~/.cache before symlinking because ddev-playwright's Dockerfile
+# 5. We rm -rf ~/.cache before symlinking because ddev-playwright's Dockerfile
 #    may have already created it as a real directory. The /ms-playwright-cache
 #    mount retains its browsers regardless, so the final cp -a recovers
 #    everything.
@@ -37,7 +43,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   && sudo -u $username npm install -g @playwright/cli@latest \
   && PW_BIN="$(sudo -u $username npm root -g)/@playwright/cli/node_modules/.bin/playwright" \
   && sudo -u $username "$PW_BIN" install-deps chromium \
-  && sudo -u $username "$PW_BIN" install chromium \
+  && sudo -u $username PLAYWRIGHT_SKIP_BROWSER_GC=1 "$PW_BIN" install chromium \
   && rm /home/$username/.cache \
   && sudo -u $username mkdir -p /home/$username/.cache \
   && sudo -u $username cp -a /ms-playwright-cache/* /home/$username/.cache/
