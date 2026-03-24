@@ -2,8 +2,27 @@ name: playwright-cli
 
 project_files:
   - config.playwright-cli.yaml
-  - web-build/Dockerfile.playwright-cli
+  - web-build/disabled.Dockerfile.playwright-cli
+  - commands/host/install-playwright-cli
   - playwright-cli/cli.config.json
 
 ddev_version_constraint: '>= v1.24.3'
 
+# Append .gitignore entries rather than shipping a static file, so we don't
+# overwrite entries from other addons (e.g. ddev-playwright).
+post_install_actions:
+  - |
+    #ddev-description:Add ddev-playwright-cli entries to web-build .gitignore
+    GITIGNORE="${DDEV_APPROOT}/.ddev/web-build/.gitignore"
+    touch "$GITIGNORE"
+    if ! grep -q "Dockerfile.playwright-cli" "$GITIGNORE"; then
+      printf '\n# This file is optionally copied to enable playwright-cli from\n# disabled.Dockerfile.playwright-cli.\nDockerfile.playwright-cli\n' >> "$GITIGNORE"
+    fi
+
+removal_actions:
+  - if grep "#ddev-generated" web-build/Dockerfile.playwright-cli 2>/dev/null; then rm web-build/Dockerfile.playwright-cli; fi
+  - |
+    GITIGNORE="${DDEV_APPROOT}/.ddev/web-build/.gitignore"
+    if [ -f "$GITIGNORE" ]; then
+      sed -i '/# This file is optionally copied to enable playwright-cli/d; /# disabled.Dockerfile.playwright-cli/d; /^Dockerfile\.playwright-cli$/d' "$GITIGNORE"
+    fi
