@@ -16,7 +16,7 @@ setup() {
   set -eu -o pipefail
 
   # Override this variable for your add-on:
-  export GITHUB_REPO=ddev/ddev-playwright-cli
+  export GITHUB_REPO=e0ipso/ddev-playwright-cli
 
   export DIR="$(cd "$(dirname "${BATS_TEST_FILENAME}")/.." >/dev/null 2>&1 && pwd)"
   TEST_BREW_PREFIX="$(brew --prefix 2>/dev/null || true)"
